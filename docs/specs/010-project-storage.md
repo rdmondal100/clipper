@@ -2,10 +2,10 @@
 
 | | |
 |---|---|
-| **Status** | Ready |
-| **Milestone** | M0 |
+| **Status** | Done (pipeline side). The Electron side (R10 trash, relink, list) comes in M3 |
+| **Milestone** | M0 (pipeline side), M3 (Electron side) |
 | **Depends on** | ADR-0005, SPEC-001 |
-| **Code** | `src/main/pipeline/project/` (no Electron), `src/main/projects/` (Electron side: list, trash, relink) |
+| **Code** | `src/main/pipeline/project/` (no Electron), `src/main/projects/` (Electron side: list, trash, relink — built in M3 with SPEC-130's `project:delete` / `project:relink`) |
 
 ## Goal
 
@@ -75,14 +75,19 @@ The database (SPEC-120). Cloud sync. Sharing projects between computers.
 
 ## Acceptance criteria
 
-- [ ] `createProject({ root, sourcePath, language, settings })` creates the layout and a valid
+- [x] `createProject({ root, sourcePath, language, settings })` creates the layout and a valid
       `project.json`; the id matches `^\d{8}-\d{6}-[a-z0-9]{6}$`.
-- [ ] A source path containing Bangla and Hindi characters works end to end through `createProject`.
-- [ ] `writeJsonAtomic` never leaves a partially written target file (test by killing the write
+- [x] A source path containing Bangla and Hindi characters works end to end through `createProject`.
+- [x] `writeJsonAtomic` never leaves a partially written target file (test by killing the write
       between tmp write and rename with an injected fs).
-- [ ] Manifest round-trips through its schema; an invalid manifest is treated as empty with a warning.
-- [ ] `checkSource` reports `sourceMissing` when size or mtime changes.
-- [ ] Free-space estimate warns when free space is below the estimate (fs injected).
+- [x] Manifest round-trips through its schema; an invalid manifest is treated as empty with a warning.
+- [x] `checkSource` reports `sourceMissing` when size or mtime changes.
+- [x] Free-space estimate warns when free space is below the estimate (fs injected).
+
+M3 (Electron side, with SPEC-130):
+
+- [ ] Deleting a project moves its folder to the Recycle Bin (R10).
+- [ ] Relinking a moved source updates `project.json` and clears `sourceMissing`.
 
 ## Test plan
 
@@ -92,3 +97,48 @@ The database (SPEC-120). Cloud sync. Sharing projects between computers.
 
 - Should exports go to a user-chosen folder instead of inside the project? (Proposal: inside the
   project, plus an "Export to…" action in SPEC-150.)
+
+## Implementation notes
+
+API (`src/main/pipeline/project/index.ts`, no Electron):
+
+- `createProject({ root, sourcePath, language, settings, name?, copySource?, now? })` →
+  `{ project, paths }`. Writes `project.json` and an empty `manifest.json`, makes `media/`,
+  `stages/`, `exports/`, `logs/`. `readProject(dir, log)` throws if `project.json` is missing or
+  invalid (it isn't a cache, so it can't be rebuilt).
+- `writeJsonAtomic(path, data, { fs? })`, `readJsonFile(path, schema, log)` (R5: missing or invalid
+  → `undefined`, invalid also warns), `removeTmpFiles(dir)` (R6, for the runner at job start).
+- `readManifest(paths, log)`, `writeManifest`, `emptyManifest`, and
+  `recordStage(paths, { stage, record, clipId? }, log)` which enforces R8 (every output must exist)
+  and R7 (with `clipId` the record goes under `clips[clipId][stage]`). Outputs must be relative to
+  the project folder.
+- `checkSource(paths, project)` → `{ ok: true } | { ok: false, status: "sourceMissing", reason: "missing" | "changed" }`
+  and `sourceFilePath(paths, project)` (what ingest should read). Nothing calls `checkSource` yet:
+  SPEC-020/030 must decide whether the runner or the ingest stage refuses to run on
+  `sourceMissing` (neither spec says so today).
+- `checkFreeSpace(dir, durationSec, { statfs? })` → `{ enough, freeBytes, neededBytes }`, with
+  `estimateNeededBytes`. "GB" is GiB (1024³, like Explorer). Needs the duration, so the caller runs
+  it once the probe is known (SPEC-030 / SPEC-140).
+
+Gotchas and decisions:
+
+- **Source paths are stored exactly as given, never NFC-normalized.** NTFS doesn't normalize
+  names, and some Bangla/Hindi letters change under NFC (য় U+09DF, क़ U+0958 are composition
+  exclusions and become two code points), so a normalized path can stop naming the file. Only the
+  display `name` is NFC (`normalizeText`). The tests use exactly those letters.
+- **Copied source (R3):** copied to `media/source.<ext>` (lower-case ASCII ext, else `video`) and
+  `source.path` is stored *relative* (`media/source.mp4`), so a copied project survives being
+  moved; size/mtime are the copy's. The copy has no progress or cancel yet; add them when the
+  setting gets a UI (SPEC-155).
+- **Atomic writes:** `<file>.tmp` written with `flush: true` (fsync) then renamed, so even a power
+  cut can't leave an empty target. Windows rename sometimes fails with `EPERM`/`EACCES`/`EBUSY`
+  while antivirus or the indexer holds the file; it is retried 5 times (50–800 ms backoff, ~1.5 s).
+  On failure the `.tmp` is removed; after a real crash it stays until `removeTmpFiles`.
+- `readJsonFile` strips a UTF-8 BOM (Notepad adds one when someone edits a project file by hand).
+- The project id uses the local clock (it's what the user sees when browsing the folder). The
+  project folder is created without `recursive`, so an existing folder is never reused; if any
+  later step fails, the half-made folder is removed.
+- `checkSource` treats any `stat` failure (unplugged drive, offline share) as `missing`, and
+  compares `mtimeMs` exactly (JSON round-trips the double without loss).
+- Logs name files by base name only, not full paths.
+- No new dependencies.

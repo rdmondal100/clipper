@@ -27,7 +27,7 @@ const ProjectSchema = z.object({
   createdAt: z.iso.datetime(),
   language: LanguageCodeSchema,
   source: z.object({
-    path: z.string().min(1),
+    path: z.string().min(1), // absolute, exactly as given; "media/source.<ext>" (relative) when copied
     sizeBytes: z.number().int().nonnegative(),
     mtimeMs: z.number().nonnegative(),
     copied: z.boolean(), // true when the source was copied into media/

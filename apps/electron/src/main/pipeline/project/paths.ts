@@ -6,6 +6,7 @@ function projectPaths(dir: string) {
     dir,
     project: join(dir, "project.json"),
     manifest: join(dir, "manifest.json"),
+    sourceCopy: (ext: string) => join(dir, "media", `source.${ext}`), // only with "Copy source into project"
     probe: join(dir, "media", "probe.json"),
     audio: join(dir, "media", "audio_16k.wav"),
     proxy: join(dir, "media", "proxy_480p.mp4"),
