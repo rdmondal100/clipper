@@ -24,8 +24,12 @@ function buildStages(_deps: PipelineDeps): Stage[] {
 }
 
 function createPipeline(deps: PipelineDeps) {
-  return createRunner({ stages: buildStages(deps), log: deps.log });
+  const stages = buildStages(deps);
+  // the names let callers check up front what a run needs, e.g. the CLI's binary check (SPEC-160 R4)
+  return { ...createRunner({ stages, log: deps.log }), stages: stages.map((stage) => stage.name) };
 }
 
+type Pipeline = ReturnType<typeof createPipeline>;
+
 export { createPipeline };
-export type { PipelineDeps };
+export type { Pipeline, PipelineDeps };

@@ -175,6 +175,5 @@ Decisions and gotchas:
 - Not handled: two runs on the same project at once (SPEC-120 runs one job at a time; the CLI and
   the app on the same project are not guarded). API keys never reach the runner today; when
   SPEC-110 passes them, add them to the job log's `redact` map.
-- `scripts/clip.ts` still passes `.projects/new`, which now fails with "Not a Clipper project"
-  instead of "Not implemented". SPEC-160 creates the project first.
+- `scripts/clip.ts` creates or opens the project before calling `run` (SPEC-160).
 - No new dependencies.
