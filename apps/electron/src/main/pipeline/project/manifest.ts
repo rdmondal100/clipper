@@ -19,6 +19,7 @@ async function writeManifest(paths: ProjectPaths, manifest: Manifest) {
   await writeJsonAtomic(paths.manifest, ManifestSchema.parse(manifest));
 }
 
+// R3/R8: which recorded outputs are gone (deleted by hand, or never written)
 async function missingOutputs(dir: string, outputs: string[]) {
   const checks = await Promise.all(
     outputs.map((output) =>
@@ -55,4 +56,4 @@ async function recordStage(
   return manifest;
 }
 
-export { emptyManifest, readManifest, recordStage, writeManifest };
+export { emptyManifest, missingOutputs, readManifest, recordStage, writeManifest };

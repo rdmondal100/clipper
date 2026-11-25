@@ -4,7 +4,7 @@
 export { createProject, createProjectId, readProject } from "./create";
 export type { CreateProjectInput } from "./create";
 export { readJsonFile, removeTmpFiles, writeJsonAtomic } from "./files";
-export { emptyManifest, readManifest, recordStage, writeManifest } from "./manifest";
+export { emptyManifest, missingOutputs, readManifest, recordStage, writeManifest } from "./manifest";
 export { projectPaths } from "./paths";
 export type { ProjectPaths } from "./paths";
 export { checkSource, sourceFilePath } from "./source";

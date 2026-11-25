@@ -16,9 +16,13 @@ type Stage = {
   name: StageName;
   version: number; // bump when the output format or logic changes, so cached results rerun
   perClip: boolean; // reframe, captions, render run once per clip
+  readsSource: boolean; // ingest, render: the runner checks the source first (SPEC-020 R11)
   settingsKey: (project: Project) => unknown; // only the settings that change this stage's output
-  run: (ctx: StageContext, clipId?: string) => Promise<{ outputs: string[] }>;
+  run: (ctx: StageContext, clipId?: string) => Promise<{ outputs: string[] }>; // absolute or project-relative
 };
+
+// one unit of work: a whole-project stage, or a per-clip stage for one clip
+type StageRef = { stage: StageName; clipId?: string };
 
 const STAGE_ORDER: readonly StageName[] = [
   "ingest",
@@ -43,5 +47,9 @@ const STAGE_WEIGHTS: Record<StageName, number> = {
   render: 28,
 };
 
-export { STAGE_ORDER, STAGE_WEIGHTS };
-export type { Stage, StageContext };
+function stageIndex(name: StageName) {
+  return STAGE_ORDER.indexOf(name);
+}
+
+export { STAGE_ORDER, STAGE_WEIGHTS, stageIndex };
+export type { Stage, StageContext, StageRef };
