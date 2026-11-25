@@ -1,0 +1,12 @@
+{
+  "name": "clipper",
+  "private": true,
+  "description": "Clipper: long videos to short clips in Bangla, English and Hindi",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "npm run dev -w apps/electron",
+    "typecheck": "npm run typecheck -w apps/electron",
+    "test": "npm test -w apps/electron",
+    "clip": "npm run clip -w apps/electron --"
+  }
+}

@@ -1,0 +1,29 @@
+# dependencies and builds
+node_modules/
+out/
+release/
+.turbo/
+
+# local env and secrets
+.env.local
+.env.*.local
+apps/electron/.env.production
+
+# large local files (see docs/specs/170 and fixtures/README.md)
+apps/electron/resources/bin/*
+!apps/electron/resources/bin/README.md
+apps/electron/resources/models/
+apps/electron/fixtures/**/*.mp4
+apps/electron/fixtures/**/*.mov
+apps/electron/fixtures/**/*.mkv
+apps/electron/fixtures/**/*.wav
+
+# CLI output
+apps/electron/.projects/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/*
+!.vscode/extensions.json
+*.log

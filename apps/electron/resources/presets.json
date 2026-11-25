@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "checkedAt": "never: verify every limit against each platform's current rules before release (SPEC-100)",
+  "presets": [
+    {
+      "id": "youtube-shorts",
+      "label": "YouTube Shorts",
+      "width": 1080,
+      "height": 1920,
+      "maxFps": 60,
+      "minDurationSec": 5,
+      "maxDurationSec": 180,
+      "loudnessLUFS": -14,
+      "captionSafe": { "top": 200, "bottom": 420, "side": 60 }
+    },
+    {
+      "id": "facebook-reels",
+      "label": "Facebook Reels",
+      "width": 1080,
+      "height": 1920,
+      "maxFps": 30,
+      "minDurationSec": 5,
+      "maxDurationSec": 90,
+      "loudnessLUFS": -14,
+      "captionSafe": { "top": 220, "bottom": 440, "side": 60 }
+    },
+    {
+      "id": "instagram-reels",
+      "label": "Instagram Reels",
+      "width": 1080,
+      "height": 1920,
+      "maxFps": 30,
+      "minDurationSec": 5,
+      "maxDurationSec": 180,
+      "loudnessLUFS": -14,
+      "captionSafe": { "top": 220, "bottom": 440, "side": 60 }
+    },
+    {
+      "id": "tiktok",
+      "label": "TikTok",
+      "width": 1080,
+      "height": 1920,
+      "maxFps": 60,
+      "minDurationSec": 5,
+      "maxDurationSec": 600,
+      "loudnessLUFS": -14,
+      "captionSafe": { "top": 200, "bottom": 480, "side": 80 }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+{
+  "$schema": "https://raw.githubusercontent.com/electron-userland/electron-builder/master/packages/app-builder-lib/scheme.json",
+  "appId": "com.clipper.desktop",
+  "productName": "Clipper",
+  "copyright": "Clipper",
+  "electronVersion": "45.2.2",
+  "extraMetadata": { "name": "clipper", "productName": "Clipper" },
+  "npmRebuild": false,
+  "directories": {
+    "output": "release",
+    "buildResources": "resources"
+  },
+  "files": ["out/**", "package.json"],
+  "asarUnpack": [],
+  "extraResources": [
+    { "from": "resources/icon.png", "to": "icon.png" },
+    { "from": "resources/presets.json", "to": "presets.json" },
+    { "from": "resources/fonts", "to": "fonts" },
+    { "from": "resources/bin/win-x64", "to": "bin" }
+  ],
+  "win": {
+    "icon": "resources/icon.png",
+    "target": [{ "target": "nsis", "arch": ["x64"] }],
+    "artifactName": "Clipper-Setup-${version}.${ext}"
+  },
+  "nsis": {
+    "oneClick": false,
+    "allowToChangeInstallationDirectory": true,
+    "perMachine": false,
+    "deleteAppDataOnUninstall": false
+  }
+}
